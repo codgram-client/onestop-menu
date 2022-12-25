@@ -1,0 +1,98 @@
+﻿@page "/"
+@inject NavigationManager _navigationManager
+@inject HttpClient _client
+
+<PageTitle>Cafe</PageTitle>
+
+@if(AppSettings is not null)
+{
+    <div class="px-4 py-2 my-2 text-center">
+      <img class="d-block mx-auto mb-2" src='@($"https://retailga.blob.core.windows.net/images/{AppSettings.Company.Id}/logo/logo.png")' alt="" width="100%" style="max-width:450px;">
+    </div>
+}
+
+
+@if(CatalogueItems is not null && CatalogueSections is not null)
+{
+    foreach (var catalogueSection in CatalogueSections.OrderBy(c => c.LineNumber).ToList())
+    {
+        <h2 class="mb-3">@catalogueSection.Name</h2>
+
+        <div class="list-group w-auto mb-5">
+            @foreach (var item in CatalogueItems.Where(c => c.CatalogueSection.Name == catalogueSection.Name).OrderBy(c => c.LineNumber).ToList())
+            {
+                  <a class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" data-bs-toggle="modal" data-bs-target="#exampleModal" @onclick="@(() => ShowModal(item))">
+                    <img src='@($"https://retailga.blob.core.windows.net/images/{AppSettings.Company.Id}/items/{item.Item.Code}.png")' 
+                            onerror="this.onerror=null;this.src='@($"https://retailga.blob.core.windows.net/images/{AppSettings.Company.Id}/logo/logo.png")';"
+                            width="56" height="48" class="rounded-circle bg-light p-1  flex-shrink-0" />
+                    <div class="d-flex gap-2 w-100 justify-content-between">
+                      <div>
+                        <h6 class="mb-0 fw-bold">@item.Item.Name</h6>
+                        <p class="mb-0 opacity-75 fs-6 lh-sm">@item.Item.Description</p>
+                      </div>
+                      <small class="opacity-50 text-nowrap">@(item.Item.SalesPrices.First().Price.ToString("#,#")) LBP</small>
+                    </div>
+                  </a>
+            }
+        </div>
+    }
+}
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        @if(CatalogueItem is not null)
+        {
+            <div class="modal-content rounded-4 shadow">
+              <div class="modal-header border-bottom-0">
+                <h1 class="modal-title fs-5">@CatalogueItem.Item.Name</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body py-0">
+                <img src='@($"https://retailga.blob.core.windows.net/images/{AppSettings.Company.Id}/items/{CatalogueItem.Item.Code}.png")' width="100%"
+                        onerror="this.src='@($"https://retailga.blob.core.windows.net/images/{AppSettings.Company.Id}/logo/logo.png")';" />
+                <p>@CatalogueItem.Item.Description</p>
+                <div class="d-flex">
+                    <div class="col"></div>
+                    <div class="col text-end">
+                        <span class="badge text-bg-secondary">
+                            <h5 class="mb-0 fw-bold">@CatalogueItem.Item.SalesPrices.First().Price.ToString("#,#") LBP</h5>
+                        </span>
+                        
+                    </div>
+                </div>
+              </div>
+              <div class="modal-footer flex-column border-top-0">
+                <button type="button" class="btn btn-lg btn-light w-100 mx-0" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>   
+        }
+
+    </div>
+</div>
+
+
+@code
+{
+    public CatalogueItem CatalogueItem { get; set; }
+    public List<CatalogueItem> CatalogueItems { get; set; }
+
+    public List<CatalogueSection> CatalogueSections { get; set; }
+    public AppSettings AppSettings { get; set; }
+    @* public Company Company { get; set; } *@
+    protected override async Task OnInitializedAsync()
+    {
+        var baseUri = _navigationManager.BaseUri;
+
+        AppSettings = await _client.GetFromJsonAsync<AppSettings>($"{baseUri}appsettings.json"); 
+        
+        CatalogueSections = await _client.GetFromJsonAsync<List<CatalogueSection>>($"catalogueSections?companyId={AppSettings.Company.Id}");
+        CatalogueItems = await _client.GetFromJsonAsync<List<CatalogueItem>>($"catalogueItems?companyId={AppSettings.Company.Id}");
+        
+    }
+
+    public void ShowModal(CatalogueItem catalogueItem)
+    {
+        CatalogueItem = catalogueItem;
+    }
+}

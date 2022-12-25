@@ -1,0 +1,36 @@
+﻿@inject HttpClient _client
+@inject NavigationManager _navigationManager
+@inherits LayoutComponentBase
+
+<div class="page">
+    @if(AppSettings is not null)
+    {
+        <div class="sidebar" style='@($"background-image: {AppSettings.MenuSettings.BackgroundImage}")'>
+            <NavMenu />
+        </div>
+    }
+
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+
+@code
+{
+    public AppSettings AppSettings { get; set; }
+    public string BackgroundImage { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var baseUrl = _navigationManager.BaseUri;
+        AppSettings = await _client.GetFromJsonAsync<AppSettings>($"{baseUrl}appsettings.json");
+
+        Console.WriteLine(AppSettings.MenuSettings.BackgroundImage);
+        StateHasChanged();
+
+        
+    }
+}
