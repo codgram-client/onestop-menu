@@ -1,5 +1,5 @@
 {
-  "name": "Menu",
+  "name": "One Stop Menu",
   "short_name": "Menu",
   "start_url": "./",
   "display": "standalone",
@@ -8,12 +8,12 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon-512.png",
+      "src": "https://retailga.blob.core.windows.net/images/cb1c4679-8659-4e26-ad9d-d70437767390/logo/icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     },
     {
-      "src": "icon-192.png",
+      "src": "https://retailga.blob.core.windows.net/images/cb1c4679-8659-4e26-ad9d-d70437767390/logo/icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     }
