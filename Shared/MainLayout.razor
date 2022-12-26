@@ -2,6 +2,18 @@
 @inject NavigationManager _navigationManager
 @inherits LayoutComponentBase
 
+@if(AppSettings is not null)
+{
+    <HeadContent>
+            <meta property="og:url"                content="@AppSettings.OpenGraph.Url" />
+            <meta property="og:type"               content="@AppSettings.OpenGraph.Type" />
+            <meta property="og:title"              content="@AppSettings.OpenGraph.Title" />
+            <meta property="og:description"        content="@AppSettings.OpenGraph.Description" />
+            <meta property="og:image"              content="@AppSettings.OpenGraph.Image" />
+    </HeadContent>
+}
+
+
 <div class="page">
     @if(AppSettings is not null)
     {
