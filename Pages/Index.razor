@@ -11,9 +11,26 @@
     </div>
 }
 
-
-@if(CatalogueItems is not null && CatalogueSections is not null)
+@if(IsLoading)
 {
+    <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+        @* <div id="app">
+        <div class="d-flex justify-content-center mt-5">
+            <div class="spinner-border " style="width: 5rem; height: 5rem; margin-top:20rem" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div> *@
+}
+
+else
+{
+  if(CatalogueItems is not null && CatalogueSections is not null)
+  {
     foreach (var catalogueSection in CatalogueSections.OrderBy(c => c.LineNumber).ToList())
     {
         <h2 class="mb-3">@catalogueSection.Name</h2>
@@ -36,7 +53,11 @@
             }
         </div>
     }
+  }
 }
+
+
+
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -79,9 +100,12 @@
 
     public List<CatalogueSection> CatalogueSections { get; set; }
     public AppSettings AppSettings { get; set; }
-    @* public Company Company { get; set; } *@
+
+    public bool IsLoading { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        IsLoading = true;
         var baseUri = _navigationManager.BaseUri;
 
         AppSettings = await _client.GetFromJsonAsync<AppSettings>($"{baseUri}appsettings.json"); 
@@ -89,6 +113,7 @@
         CatalogueSections = await _client.GetFromJsonAsync<List<CatalogueSection>>($"catalogueSections?companyId={AppSettings.Company.Id}");
         CatalogueItems = await _client.GetFromJsonAsync<List<CatalogueItem>>($"catalogueItems?companyId={AppSettings.Company.Id}");
         
+        IsLoading = false;
     }
 
     public void ShowModal(CatalogueItem catalogueItem)
